@@ -1,0 +1,5 @@
+chatbot_analytics:
+  js:
+    js/chatbot-analytics.js: {}
+  dependencies:
+    - ai_chatbot/deepchat

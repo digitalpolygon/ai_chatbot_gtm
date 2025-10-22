@@ -1,0 +1,8 @@
+{
+  "name": "drupal/ai_chatbot_gtm",
+  "type": "drupal-module",
+  "description": "Integrates AI Chatbot with Google Tag Manager for Drupal sites.",
+  "require": {
+    "drupal/ai": "^1.2"
+  }
+}

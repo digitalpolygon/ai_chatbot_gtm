@@ -1,0 +1,8 @@
+name: AI Chatbot GTM
+description: Integrates AI Chatbot interfaces with Google Tag Manager for event tracking.
+type: module
+package: AI
+core_version_requirement: ^10.4 || ^11
+
+dependencies:
+  - ai:ai_chatbot

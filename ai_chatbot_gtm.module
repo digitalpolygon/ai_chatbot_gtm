@@ -1,0 +1,41 @@
+<?php
+/**
+ * @file
+ * Module code for AI Chatbot GTM module.
+ */
+
+use Drupal\Core\Block\BlockPluginInterface;
+
+/**
+ * Implements hook_block_view_alter().
+ */
+function ai_chatbot_gtm_block_view_alter(array &$build, BlockPluginInterface $block) {
+  // Check for a specific block ID.
+  if ($block->getBaseId() === 'ai_deepchat_block') {
+    // Attach ai_chatbot_gtm/chatbot_analytics library.
+    $build['#attached']['library'][] = 'ai_chatbot_gtm/chatbot_analytics';
+  }
+}
+
+/**
+ * Implements hook_deepchat_buttons_alter().
+ */
+function ai_chatbot_gtm_deepchat_buttons_alter(array &$buttons) {
+  $icons_dir = \Drupal::moduleHandler()
+      ->getModule('ai_chatbot_gtm')
+      ->getPath() . '/icons';
+  $buttons[] = [
+    'svg' => $icons_dir . '/thumbs-up.svg',
+    'alt' => t('Response was useful'),
+    'title' => t('Response was useful'),
+    'weight' => 1,
+    'class' => ['like-button'],
+  ];
+  $buttons[] = [
+    'svg' => $icons_dir . '/thumbs-down.svg',
+    'alt' => t('Response was not useful'),
+    'title' => t('Response was not useful'),
+    'weight' => 2,
+    'class' => ['dislike-button'],
+  ];
+}
