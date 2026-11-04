@@ -1,10 +1,12 @@
 <?php
+
 /**
  * @file
  * Module code for AI Chatbot GTM module.
  */
 
 use Drupal\Core\Block\BlockPluginInterface;
+use Drupal\ai\Plugin\ChatProcessor\ChatProcessorInterface;
 
 /**
  * Implements hook_block_view_alter().
@@ -14,7 +16,41 @@ function ai_chatbot_gtm_block_view_alter(array &$build, BlockPluginInterface $bl
   if ($block->getBaseId() === 'ai_deepchat_block') {
     // Attach ai_chatbot_gtm/chatbot_analytics library.
     $build['#attached']['library'][] = 'ai_chatbot_gtm/chatbot_analytics';
+    // The chat history is replayed from stored response text only, so the
+    // browser needs the button markup to add it to replayed responses.
+    $build['#attached']['drupalSettings']['aiChatbotGtm']['messageButtons'] = _ai_chatbot_gtm_message_buttons();
   }
+}
+
+/**
+ * Implements hook_deepchat_prepend_message().
+ *
+ * Despite its name, the returned markup is appended to each response.
+ */
+function ai_chatbot_gtm_deepchat_prepend_message($message, $type, $assistant_id, $thread_id) {
+  return _ai_chatbot_gtm_message_buttons((string) $assistant_id, (string) $thread_id);
+}
+
+/**
+ * Renders the message buttons shown below each chatbot response.
+ *
+ * @param string $assistant_id
+ *   The assistant id.
+ * @param string $thread_id
+ *   The thread id.
+ *
+ * @return string
+ *   The rendered buttons, or an empty string when the AI Chatbot module
+ *   already renders them below every response.
+ */
+function _ai_chatbot_gtm_message_buttons(string $assistant_id = '', string $thread_id = ''): string {
+  // Releases of AI Chatbot without chat processor plugins add the message
+  // buttons to every response themselves. Newer releases only add them
+  // alongside structured results.
+  if (!method_exists(ChatProcessorInterface::class, 'getPostResponseMarkup')) {
+    return '';
+  }
+  return \Drupal::service('ai_chatbot.buttons')->getRenderedButtons([], $assistant_id, $thread_id);
 }
 
 /**
@@ -22,8 +58,8 @@ function ai_chatbot_gtm_block_view_alter(array &$build, BlockPluginInterface $bl
  */
 function ai_chatbot_gtm_deepchat_buttons_alter(array &$buttons) {
   $icons_dir = \Drupal::moduleHandler()
-      ->getModule('ai_chatbot_gtm')
-      ->getPath() . '/icons';
+    ->getModule('ai_chatbot_gtm')
+    ->getPath() . '/icons';
   $buttons[] = [
     'svg' => $icons_dir . '/thumbs-up.svg',
     'alt' => t('Response was useful'),
