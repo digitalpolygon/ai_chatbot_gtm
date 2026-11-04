@@ -2,6 +2,19 @@
   Drupal.behaviors.aiChatbotGtmAnalytics = {
     attach: function (context, settings) {
 
+      // Deep Chat reads the chat history from drupalSettings when it first
+      // renders, and stored responses only hold the response text. Append the
+      // message buttons to each stored response so it matches a live one.
+      var messageButtons = settings.aiChatbotGtm && settings.aiChatbotGtm.messageButtons;
+      var history = settings.ai_deepchat && settings.ai_deepchat.messages;
+      if (messageButtons && Array.isArray(history)) {
+        history.forEach(function (message) {
+          if (message.role !== 'user' && typeof message.html === 'string' && message.html.indexOf('chat-buttons') === -1) {
+            message.html += messageButtons;
+          }
+        });
+      }
+
       once('ai-chatbot-gtm-analytics', 'body', context).forEach(function () {
 
         // Track intervals and timings per chat instance.
